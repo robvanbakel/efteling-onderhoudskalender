@@ -6,3 +6,7 @@ preview_urls = false
 
 [observability]
 enabled = true
+
+[[kv_namespaces]]
+binding = "efteling-onderhoudskalender-cache"
+id = "6ba5b28119b74281bd9dea02a12f0a1d"
