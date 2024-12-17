@@ -16,9 +16,7 @@ app.get("/feed", async (c) => {
   const feedCache = await c.env[cacheKey].get("feed");
 
   if (feedCache) {
-    return c.body(feedCache, 200, {
-      "Content-Type": "text/calendar",
-    });
+    return c.body(feedCache);
   }
 
   const attractions = await fetchData();
@@ -34,9 +32,7 @@ app.get("/feed", async (c) => {
     expirationTtl: 3600,
   });
 
-  return c.body(icsString, 200, {
-    "Content-Type": "text/calendar",
-  });
+  return c.body(icsString);
 });
 
 export default app;
