@@ -2,8 +2,8 @@ import { add, format } from "date-fns";
 import { nanoid } from "nanoid";
 
 type Attraction = {
-  from: Date;
-  to: Date;
+  from: string;
+  to: string;
   name: string;
 };
 

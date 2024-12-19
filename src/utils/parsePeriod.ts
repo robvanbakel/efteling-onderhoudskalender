@@ -1,4 +1,4 @@
-import { parse } from "date-fns";
+import { format, parse } from "date-fns";
 import { nl } from "date-fns/locale/nl";
 
 const TRANSLATED_UNTIL = "t/m";
@@ -22,13 +22,15 @@ const parseFormattedDate = (
   return date;
 };
 
-export const parsePeriod = (period: string): { from: Date; to: Date } => {
+const dateToString = (date = new Date()) => format(date, "yyyy-MM-dd");
+
+export const parsePeriod = (period: string): { from: string; to: string } => {
   if (!period.includes(TRANSLATED_UNTIL)) {
     const date = parseFormattedDate(period);
 
     return {
-      from: date,
-      to: date,
+      from: dateToString(date),
+      to: dateToString(date),
     };
   }
 
@@ -36,8 +38,8 @@ export const parsePeriod = (period: string): { from: Date; to: Date } => {
     const to = parseFormattedDate(period.slice(4));
 
     return {
-      from: new Date(),
-      to,
+      from: dateToString(),
+      to: dateToString(to),
     };
   }
 
@@ -47,7 +49,7 @@ export const parsePeriod = (period: string): { from: Date; to: Date } => {
   const from = parseFormattedDate(formattedFrom, { referenceDate: to });
 
   return {
-    from,
-    to,
+    from: dateToString(from),
+    to: dateToString(to),
   };
 };
