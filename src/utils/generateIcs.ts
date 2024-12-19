@@ -22,7 +22,7 @@ END:VEVENT`;
 export const generateIcs = (data: Attraction[]) => {
   const icsStart = `BEGIN:VCALENDAR
 CALSCALE:GREGORIAN
-PRODID:${nanoid()}
+PRODID:efteling-onderhoudskalender
 VERSION:2.0`;
 
   const icsEnd = "END:VCALENDAR";
