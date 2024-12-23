@@ -22,9 +22,11 @@ const parseFormattedDate = (
   return date;
 };
 
-const dateToString = (date = new Date()) => format(date, "yyyy-MM-dd");
+const dateToString = (date: Date) => format(date, "yyyy-MM-dd");
 
-export const parsePeriod = (period: string): { from: string; to: string } => {
+export const parsePeriod = (
+  period: string,
+): { from: string | null; to: string } => {
   if (!period.includes(TRANSLATED_UNTIL)) {
     const date = parseFormattedDate(period);
 
@@ -38,7 +40,7 @@ export const parsePeriod = (period: string): { from: string; to: string } => {
     const to = parseFormattedDate(period.slice(4));
 
     return {
-      from: dateToString(),
+      from: null,
       to: dateToString(to),
     };
   }

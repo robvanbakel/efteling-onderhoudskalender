@@ -1,37 +1,46 @@
-import { Hono } from "hono";
 import type { KVNamespace } from "@cloudflare/workers-types";
+import { Hono } from "hono";
 
+import { differenceInMinutes } from "date-fns";
 import { fetchData } from "./utils/fetchData";
 import { generateIcs } from "./utils/generateIcs";
-import { parsePeriod } from "./utils/parsePeriod";
 
-const cacheKey = "efteling-onderhoudskalender-cache";
+const MAX_CACHE_AGE_IN_MINUTES = 60;
+const CACHE_STORE = "efteling-onderhoudskalender-cache";
 
 const app = new Hono<{
   Bindings: {
-    [cacheKey]: KVNamespace;
+    [CACHE_STORE]: KVNamespace<"attractions">;
   };
 }>();
-app.get("/feed", async (c) => {
-  const feedCache = await c.env[cacheKey].get("feed");
 
-  if (feedCache) {
-    return c.body(feedCache);
+app.get("/feed", async (c) => {
+  const feedCache = await c.env[CACHE_STORE].get<{
+    timestamp: string;
+    data: {
+      name: string;
+      to: string;
+      from: string | null;
+    }[];
+  }>("attractions", "json");
+
+  if (!feedCache) {
+    const attractions = await fetchData({ cacheStore: c.env[CACHE_STORE] });
+
+    const icsString = generateIcs(attractions);
+    return c.body(icsString);
   }
 
-  const attractions = await fetchData();
+  const cacheAge = differenceInMinutes(new Date(), feedCache.timestamp);
 
-  const parsedData = attractions.map((attraction) => ({
-    name: attraction.name,
-    ...parsePeriod(attraction.period),
-  }));
+  if (cacheAge < MAX_CACHE_AGE_IN_MINUTES) {
+    const icsString = generateIcs(feedCache.data, feedCache.timestamp);
+    return c.body(icsString);
+  }
 
-  const icsString = generateIcs(parsedData);
+  const attractions = await fetchData({ cacheStore: c.env[CACHE_STORE] });
 
-  await c.env[cacheKey].put("feed", icsString, {
-    expirationTtl: 3600,
-  });
-
+  const icsString = generateIcs(attractions);
   return c.body(icsString);
 });
 

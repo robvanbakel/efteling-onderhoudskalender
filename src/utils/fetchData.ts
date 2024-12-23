@@ -1,12 +1,19 @@
 import axios from "axios";
+import type { KVNamespace } from "@cloudflare/workers-types";
 import * as cheerio from "cheerio";
+import { parsePeriod } from "./parsePeriod";
 
 const URL = "https://www.efteling.com/nl/park/informatie/in-onderhoud";
 
-export const fetchData = async (): Promise<
+export const fetchData = async ({
+  cacheStore,
+}: {
+  cacheStore: KVNamespace<"attractions">;
+}): Promise<
   {
     name: string;
-    period: string;
+    from: string | null;
+    to: string;
   }[]
 > => {
   const { data } = await axios.get(URL);
@@ -25,5 +32,18 @@ export const fetchData = async (): Promise<
     })
     .get();
 
-  return attractions;
+  const parsedData = attractions.map((attraction) => ({
+    name: attraction.name,
+    ...parsePeriod(attraction.period),
+  }));
+
+  await cacheStore.put(
+    "attractions",
+    JSON.stringify({
+      timestamp: new Date().toISOString(),
+      data: parsedData,
+    }),
+  );
+
+  return parsedData;
 };
