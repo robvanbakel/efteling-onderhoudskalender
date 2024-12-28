@@ -40,6 +40,13 @@ app.get("/feed", async (c) => {
 
   const attractions = await fetchData({ cacheStore: c.env[CACHE_STORE] });
 
+  const attractionsWithStatus = appendStatus(feedCache.data, attractions);
+  const hasChanges = attractionsWithStatus.some(({ status }) => !!status);
+
+  if (hasChanges) {
+    // @TODO send notification
+  }
+
   const icsString = generateIcs(attractions);
   return c.body(icsString);
 });
