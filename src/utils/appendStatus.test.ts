@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { format } from "date-fns";
-import appendStatus from "./appendStatus";
+import { appendStatus } from "./appendStatus";
 
 describe("Append status to items in array", () => {
   test("appends no status when no changes are present", () => {

@@ -4,6 +4,8 @@ import { Hono } from "hono";
 import { differenceInMinutes } from "date-fns";
 import { fetchData } from "./utils/fetchData";
 import { generateIcs } from "./utils/generateIcs";
+import { appendStatus } from "./utils/appendStatus";
+import { sendNotification } from "./utils/sendNotification.tsx";
 
 const MAX_CACHE_AGE_IN_MINUTES = 60;
 const CACHE_STORE = "efteling-onderhoudskalender-cache";
@@ -11,6 +13,8 @@ const CACHE_STORE = "efteling-onderhoudskalender-cache";
 const app = new Hono<{
   Bindings: {
     [CACHE_STORE]: KVNamespace<"attractions">;
+    RESEND_API_KEY: string;
+    NOTIFICATION_TO: string;
   };
 }>();
 
@@ -21,6 +25,7 @@ app.get("/feed", async (c) => {
       name: string;
       to: string;
       from: string | null;
+      period: string;
     }[];
   }>("attractions", "json");
 
@@ -44,7 +49,11 @@ app.get("/feed", async (c) => {
   const hasChanges = attractionsWithStatus.some(({ status }) => !!status);
 
   if (hasChanges) {
-    // @TODO send notification
+    await sendNotification(
+      c.env.RESEND_API_KEY,
+      c.env.NOTIFICATION_TO,
+      attractionsWithStatus,
+    );
   }
 
   const icsString = generateIcs(attractions);

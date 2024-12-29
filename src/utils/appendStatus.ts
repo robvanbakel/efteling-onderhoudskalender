@@ -2,13 +2,13 @@ import { differenceInDays, isToday } from "date-fns";
 
 export type Status = "ADDED" | "REMOVED" | "UPDATED";
 
-type Item = {
+export type Item = {
   name: string;
   from: string | null;
   to: string;
 };
 
-export default (oldItems: Item[], newItems: Item[]) => {
+export const appendStatus = (oldItems: Item[], newItems: Item[]) => {
   const outputItems: (Item & { status?: Status })[] = newItems;
 
   const removedItems = oldItems.filter(({ name, to }) => {

@@ -14,6 +14,7 @@ export const fetchData = async ({
     name: string;
     from: string | null;
     to: string;
+    period: string;
   }[]
 > => {
   const { data } = await axios.get(URL);
@@ -34,6 +35,7 @@ export const fetchData = async ({
 
   const parsedData = attractions.map((attraction) => ({
     name: attraction.name,
+    period: attraction.period,
     ...parsePeriod(attraction.period),
   }));
 
