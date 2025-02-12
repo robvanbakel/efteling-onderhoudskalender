@@ -23,7 +23,7 @@
     "prettier": "^3.2.5",
     "react-email": "^3.0.4",
     "typescript": "^5.4.3",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.9"
   },
   "dependencies": {
     "@react-email/components": "^0.0.31",
